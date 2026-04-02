@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mini Instagram</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #fafafa;
+      text-align: center;
+    }
+    .post {
+      background: white;
+      width: 300px;
+      margin: 20px auto;
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #ccc;
+    }
+    img {
+      width: 100%;
+      border-radius: 10px;
+    }
+    button {
+      padding: 5px 10px;
+      margin-top: 5px;
+      cursor: pointer;
+    }
+    input {
+      width: 80%;
+      padding: 5px;
+      margin-top: 5px;
+    }
+    .comments {
+      text-align: left;
+      margin-top: 10px;
+    }
+    .comment {
+      display: flex;
+      justify-content: space-between;
+      margin: 5px 0;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>📸 Mini Instagram</h1>
+
+<div class="post">
+  <h3>@anmol</h3>
+  <img src="https://picsum.photos/300">
+  <p id="likes1">❤️ 0 Likes</p>
+  <button onclick="likePost('likes1')">Like</button>
+
+  <div class="comments" id="comments1"></div>
+
+  <input type="text" id="user1" placeholder="Your name">
+  <input type="text" id="input1" placeholder="Add a comment...">
+  <button onclick="addComment('user1','input1','comments1','post1')">Post</button>
+</div>
+
+<script>
+// Load saved comments
+window.onload = function() {
+  loadComments('post1', 'comments1');
+};
+
+function likePost(id) {
+  let text = document.getElementById(id).innerText;
+  let number = parseInt(text.split(" ")[1]);
+  number++;
+  document.getElementById(id).innerText = "❤️ " + number + " Likes";
+}
+
+function addComment(userId, inputId, commentId, storageKey) {
+  let user = document.getElementById(userId).value || "Anonymous";
+  let text = document.getElementById(inputId).value;
+
+  if(text.trim() === "") return;
+
+  let commentObj = { user, text };
+
+  let comments = JSON.parse(localStorage.getItem(storageKey)) || [];
+  comments.push(commentObj);
+
+  localStorage.setItem(storageKey, JSON.stringify(comments));
+
+  displayComments(comments, commentId, storageKey);
+
+  document.getElementById(inputId).value = "";
+}
+
+function displayComments(comments, commentId, storageKey) {
+  let container = document.getElementById(commentId);
+  container.innerHTML = "";
+
+  comments.forEach((c, index) => {
+    let div = document.createElement("div");
+    div.className = "comment";
+
+    let text = document.createElement("span");
+    text.innerText = "💬 " + c.user + ": " + c.text;
+
+    let del = document.createElement("button");
+    del.innerText = "❌";
+    del.onclick = () => deleteComment(index, storageKey, commentId);
+
+    div.appendChild(text);
+    div.appendChild(del);
+
+    container.appendChild(div);
+  });
+}
+
+function deleteComment(index, storageKey, commentId) {
+  let comments = JSON.parse(localStorage.getItem(storageKey)) || [];
+  comments.splice(index, 1);
+  localStorage.setItem(storageKey, JSON.stringify(comments));
+  displayComments(comments, commentId, storageKey);
+}
+
+function loadComments(storageKey, commentId) {
+  let comments = JSON.parse(localStorage.getItem(storageKey)) || [];
+  displayComments(comments, commentId, storageKey);
+}
+</script>
+
+</body>
+</html>
